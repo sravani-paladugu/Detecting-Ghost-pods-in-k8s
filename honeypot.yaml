@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: internal-db-honeypot
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: shadow-db
+  template:
+    metadata:
+      labels:
+        app: shadow-db
+    spec:
+      containers:
+      - name: honeypot
+        image: ephemeral-honeypot:v1
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prod-db-service  # A tempting name for an attacker
+spec:
+  selector:
+    app: shadow-db
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
